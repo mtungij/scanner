@@ -15,6 +15,18 @@
                     <x-ui.button type="button" wire:ignore x-on:click="start()">Start Camera</x-ui.button>
                     <x-ui.button type="button" variant="outline" wire:ignore x-on:click="stop()">Stop Camera</x-ui.button>
                 </div>
+
+                <div class="flex items-center justify-between rounded-lg border border-gray-300 px-3 py-2 dark:border-neutral-700">
+                    <x-ui.text class="text-xs">Auto restart after capture</x-ui.text>
+                    <button
+                        type="button"
+                        class="rounded-md border border-gray-300 px-2 py-1 text-xs dark:border-neutral-700"
+                        x-on:click="autoRestart = !autoRestart"
+                        x-text="autoRestart ? 'On' : 'Off'"
+                    ></button>
+                </div>
+
+                <x-ui.text class="text-xs opacity-60" x-text="statusText"></x-ui.text>
             </div>
 
             <x-ui.separator class="my-4" />
@@ -88,41 +100,143 @@
     window.posScanner = (wire) => ({
         scanner: null,
         currentCameraId: null,
+        currentCameraLabel: '',
+        lastDecodedText: null,
+        lastDecodedAt: 0,
+        audioContext: null,
+        isProcessingScan: false,
+        autoRestart: false,
+        statusText: 'Camera is off',
         async start() {
             if (!window.Html5Qrcode) {
                 await this.loadLibrary();
             }
 
             if (this.scanner) {
+                this.statusText = this.currentCameraLabel
+                    ? `Camera is already running (${this.currentCameraLabel})`
+                    : 'Camera is already running';
                 return;
             }
 
+            this.statusText = 'Starting camera...';
             this.scanner = new Html5Qrcode('barcode-reader');
 
             const devices = await Html5Qrcode.getCameras();
             if (!devices.length) {
+                this.statusText = 'No camera detected';
                 return;
             }
 
-            this.currentCameraId = devices[0].id;
+            const selectedCamera = this.pickBackCamera(devices);
+            this.currentCameraId = selectedCamera.id;
+            this.currentCameraLabel = selectedCamera.label || 'Back camera';
 
             await this.scanner.start(
                 this.currentCameraId,
                 { fps: 10, qrbox: { width: 250, height: 100 } },
                 (decodedText) => {
-                    wire.call('scanBarcode', decodedText);
+                    this.handleDecoded(decodedText, wire);
                 },
                 () => {}
             );
+
+            this.statusText = `Back camera active (${this.currentCameraLabel})`;
         },
         async stop() {
             if (!this.scanner) {
+                this.statusText = 'Camera is off';
                 return;
             }
 
-            await this.scanner.stop();
-            await this.scanner.clear();
+            try {
+                await this.scanner.stop();
+            } catch (error) {
+            }
+
+            try {
+                await this.scanner.clear();
+            } catch (error) {
+            }
+
             this.scanner = null;
+            this.currentCameraId = null;
+            this.currentCameraLabel = '';
+            this.isProcessingScan = false;
+            this.statusText = 'Camera is off';
+        },
+        async handleDecoded(decodedText, wire) {
+            if (this.isProcessingScan || this.isDuplicateScan(decodedText)) {
+                return;
+            }
+
+            this.isProcessingScan = true;
+            this.statusText = 'Code captured';
+            this.playScanBeep();
+            await wire.call('scanBarcode', decodedText);
+
+            await this.stop();
+
+            if (this.autoRestart) {
+                this.statusText = 'Captured. Restarting scanner...';
+                await new Promise((resolve) => setTimeout(resolve, 700));
+                await this.start();
+
+                return;
+            }
+
+            this.statusText = 'Captured. Tap Start Camera for next item';
+        },
+        pickBackCamera(devices) {
+            const backCameraKeywords = ['back', 'rear', 'environment', 'wide', 'ultra'];
+
+            const preferredCamera = devices.find((device) => {
+                const label = (device.label ?? '').toLowerCase();
+
+                return backCameraKeywords.some((keyword) => label.includes(keyword));
+            });
+
+            return preferredCamera ?? devices[devices.length - 1];
+        },
+        isDuplicateScan(decodedText) {
+            const now = Date.now();
+            const cooldownMs = 1200;
+
+            const isDuplicate = this.lastDecodedText === decodedText && (now - this.lastDecodedAt) < cooldownMs;
+
+            if (!isDuplicate) {
+                this.lastDecodedText = decodedText;
+                this.lastDecodedAt = now;
+            }
+
+            return isDuplicate;
+        },
+        playScanBeep() {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+            if (!AudioContextClass) {
+                return;
+            }
+
+            if (!this.audioContext) {
+                this.audioContext = new AudioContextClass();
+            }
+
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 1100;
+
+            gainNode.gain.setValueAtTime(0.001, this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.12, this.audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.12);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+
+            oscillator.start();
+            oscillator.stop(this.audioContext.currentTime + 0.12);
         },
         async loadLibrary() {
             await new Promise((resolve, reject) => {
