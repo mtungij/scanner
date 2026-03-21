@@ -33,7 +33,7 @@
             <x-ui.separator class="my-4" />
 
             <x-ui.field>
-                <x-ui.label>Search  Product Name</x-ui.label>
+                <x-ui.label>Search by Product Name</x-ui.label>
                 <div class="flex gap-2">
                     <x-ui.select
                         placeholder="Find a product..."
@@ -77,7 +77,7 @@
                     <div class="flex items-center justify-between rounded-lg border border-gray-300 p-3 dark:border-neutral-700" wire:key="cart-item-{{ $item['product_id'] }}">
                         <div>
                             <x-ui.text class="font-medium">{{ $item['name'] }}</x-ui.text>
-                            <x-ui.text class="text-xs opacity-60">{{ number_format((float) $item['price'], 2) }}</x-ui.text>
+                            <x-ui.text class="text-xs opacity-60">{{ $item['barcode'] }} · Sell: ${{ number_format((float) $item['price'], 2) }}</x-ui.text>
                         </div>
 
                         <div class="flex items-center gap-2">

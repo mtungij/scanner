@@ -18,11 +18,17 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
+        $buyPrice = fake()->randomFloat(2, 1, 300);
+
         return [
             'name' => fake()->words(3, true),
             'barcode' => fake()->unique()->numerify('############'),
-            'price' => fake()->randomFloat(2, 1, 500),
+            'buy_price' => $buyPrice,
+            'price' => $buyPrice + fake()->randomFloat(2, 0.5, 200),
             'stock_quantity' => fake()->numberBetween(1, 100),
+            'unit' => fake()->randomElement(['piece', 'kg', 'g', 'liter', 'ml', 'box', 'bag', 'pack']),
+            'category' => fake()->randomElement(['Dairy', 'Beverages', 'Snacks', 'Groceries']),
+            'expire_date' => fake()->optional()->dateTimeBetween('now', '+1 year'),
         ];
     }
 }

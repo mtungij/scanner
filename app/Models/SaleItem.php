@@ -20,8 +20,10 @@ class SaleItem extends Model
         'sale_id',
         'product_id',
         'quantity',
+        'buy_price',
         'unit_price',
         'line_total',
+        'profit_amount',
     ];
 
     /**
@@ -31,8 +33,10 @@ class SaleItem extends Model
     {
         return [
             'quantity' => 'integer',
+            'buy_price' => 'decimal:2',
             'unit_price' => 'decimal:2',
             'line_total' => 'decimal:2',
+            'profit_amount' => 'decimal:2',
         ];
     }
 

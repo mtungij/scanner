@@ -131,7 +131,7 @@ class Products extends Component
         $this->stockQuantity = (string) $product->stock_quantity;
         $this->unit = $product->unit ?? 'piece';
         $this->category = $product->category ?? '';
-        $this->expireDate = $product->expire_date ? $product->expire_date->format('Y-m-d') : '';
+        $this->expireDate = (string) ($product->getRawOriginal('expire_date') ?? '');
         $this->barcodeWasGenerated = false;
     }
 

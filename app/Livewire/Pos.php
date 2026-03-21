@@ -201,8 +201,10 @@ class Pos extends Component
                 $sale->items()->create([
                     'product_id' => $product->id,
                     'quantity' => (int) $item['quantity'],
+                    'buy_price' => $product->buy_price,
                     'unit_price' => (float) $item['price'],
                     'line_total' => ((float) $item['price']) * ((int) $item['quantity']),
+                    'profit_amount' => (((float) $item['price']) - (float) ($product->buy_price ?? 0)) * ((int) $item['quantity']),
                 ]);
 
                 $product->decrement('stock_quantity', (int) $item['quantity']);

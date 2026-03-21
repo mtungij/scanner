@@ -17,6 +17,7 @@
             <x-ui.text>Payment Method: <strong>{{ $sale->payment_method ?? 'Cash' }}</strong></x-ui.text>
             <x-ui.text>Total: <strong>${{ number_format((float) $sale->total_amount, 2) }}</strong></x-ui.text>
             <x-ui.text>Payment: <strong>${{ number_format((float) $sale->payment_received, 2) }}</strong></x-ui.text>
+            <x-ui.text>Profit: <strong>${{ number_format((float) $sale->items->sum('profit_amount'), 2) }}</strong></x-ui.text>
             <x-ui.text colspan="2">Change: <strong>${{ number_format((float) $sale->change_given, 2) }}</strong></x-ui.text>
         </div>
 
@@ -28,8 +29,9 @@
                     <tr class="border-b border-gray-300 dark:border-neutral-700">
                         <th class="px-2 py-2">Item</th>
                         <th class="px-2 py-2 text-right">Qty</th>
-                        <th class="px-2 py-2 text-right">Price</th>
+                        <th class="px-2 py-2 text-right">Sell Price</th>
                         <th class="px-2 py-2 text-right">Subtotal</th>
+                        <th class="px-2 py-2 text-right">Profit</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,6 +41,7 @@
                             <td class="px-2 py-2 text-right">{{ $item->quantity }}</td>
                             <td class="px-2 py-2 text-right">${{ number_format((float) $item->unit_price, 2) }}</td>
                             <td class="px-2 py-2 text-right">${{ number_format((float) $item->line_total, 2) }}</td>
+                            <td class="px-2 py-2 text-right">${{ number_format((float) $item->profit_amount, 2) }}</td>
                         </tr>
                     @endforeach
                 </tbody>

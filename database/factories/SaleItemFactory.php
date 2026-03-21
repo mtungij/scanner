@@ -21,14 +21,17 @@ class SaleItemFactory extends Factory
     public function definition(): array
     {
         $quantity = fake()->numberBetween(1, 5);
+        $buyPrice = fake()->randomFloat(2, 1, 200);
         $unitPrice = fake()->randomFloat(2, 1, 300);
 
         return [
             'sale_id' => Sale::factory(),
             'product_id' => Product::factory(),
             'quantity' => $quantity,
+            'buy_price' => $buyPrice,
             'unit_price' => $unitPrice,
             'line_total' => $quantity * $unitPrice,
+            'profit_amount' => $quantity * ($unitPrice - $buyPrice),
         ];
     }
 }

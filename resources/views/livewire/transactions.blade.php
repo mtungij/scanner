@@ -23,6 +23,7 @@
                         <th class="px-2 py-2">Cashier</th>
                         <th class="px-2 py-2 text-right">Items</th>
                         <th class="px-2 py-2 text-right">Total</th>
+                        <th class="px-2 py-2 text-right">Profit</th>
                         <th class="px-2 py-2">Date</th>
                         <th class="px-2 py-2 text-right">Receipt</th>
                     </tr>
@@ -34,6 +35,7 @@
                             <td class="px-2 py-2">{{ $sale->user?->name ?? 'N/A' }}</td>
                             <td class="px-2 py-2 text-right">{{ $sale->items->sum('quantity') }}</td>
                             <td class="px-2 py-2 text-right">${{ number_format((float) $sale->total_amount, 2) }}</td>
+                            <td class="px-2 py-2 text-right">${{ number_format((float) $sale->items->sum('profit_amount'), 2) }}</td>
                             <td class="px-2 py-2">{{ $sale->created_at->format('M d, Y H:i') }}</td>
                             <td class="px-2 py-2 text-right">
                                 <x-ui.link href="{{ route('receipt', ['sale' => $sale->id]) }}" wire:navigate>View</x-ui.link>
@@ -41,7 +43,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-2 py-6 text-center text-neutral-500">No transactions found.</td>
+                            <td colspan="7" class="px-2 py-6 text-center text-neutral-500">No transactions found.</td>
                         </tr>
                     @endforelse
                 </tbody>

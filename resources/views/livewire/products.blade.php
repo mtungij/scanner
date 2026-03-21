@@ -17,14 +17,8 @@
                     <x-ui.error name="name" />
                 </x-ui.field>
 
-                   <x-ui.field>
-                       <x-ui.label>Buy Price (Cost)</x-ui.label>
-                       <x-ui.input wire:model="buyPrice" type="number" step="0.01" placeholder="0.00" />
-                       <x-ui.error name="buyPrice" />
-                   </x-ui.field>
-
                 <x-ui.field>
-                       <x-ui.label>Sell Price</x-ui.label>
+                    <x-ui.label>Barcode</x-ui.label>
                     <div x-data="productBarcodeScanner($wire)" class="space-y-2">
                         <div class="flex gap-2">
                             <x-ui.input wire:model="barcode" placeholder="e.g. 123456789012" />
@@ -35,38 +29,18 @@
                         <x-ui.text class="text-xs opacity-60" x-text="statusText"></x-ui.text>
                         <x-ui.button type="button" variant="outline" wire:click="generateBarcode">Generate</x-ui.button>
                     </div>
-                   <x-ui.field>
-                       <x-ui.label>Unit</x-ui.label>
-                       <x-ui.select wire:model="unit">
-                           <x-ui.select.option value="piece">Piece</x-ui.select.option>
-                           <x-ui.select.option value="kg">Kilogram (kg)</x-ui.select.option>
-                           <x-ui.select.option value="g">Gram (g)</x-ui.select.option>
-                           <x-ui.select.option value="liter">Liter (L)</x-ui.select.option>
-                           <x-ui.select.option value="ml">Milliliter (ml)</x-ui.select.option>
-                           <x-ui.select.option value="box">Box</x-ui.select.option>
-                           <x-ui.select.option value="bag">Bag</x-ui.select.option>
-                           <x-ui.select.option value="pack">Pack</x-ui.select.option>
-                       </x-ui.select>
-                       <x-ui.error name="unit" />
-                   </x-ui.field>
-
-                   <x-ui.field>
-                       <x-ui.label>Category</x-ui.label>
-                       <x-ui.input wire:model="category" placeholder="e.g., Dairy, Beverages, Snacks" />
-                       <x-ui.error name="category" />
-                   </x-ui.field>
-
-                   <x-ui.field>
-                       <x-ui.label>Expiry Date</x-ui.label>
-                       <x-ui.input wire:model="expireDate" type="date" />
-                       <x-ui.error name="expireDate" />
-                   </x-ui.field>
                     <x-ui.text class="text-xs opacity-60">Scan existing barcode or leave empty and click Save to auto-generate.</x-ui.text>
                     <x-ui.error name="barcode" />
                 </x-ui.field>
 
                 <x-ui.field>
-                    <x-ui.label>Price</x-ui.label>
+                    <x-ui.label>Buy Price (Cost)</x-ui.label>
+                    <x-ui.input wire:model="buyPrice" type="number" step="0.01" placeholder="0.00" />
+                    <x-ui.error name="buyPrice" />
+                </x-ui.field>
+
+                <x-ui.field>
+                    <x-ui.label>Sell Price</x-ui.label>
                     <x-ui.input wire:model="price" type="number" step="0.01" placeholder="0.00" />
                     <x-ui.error name="price" />
                 </x-ui.field>
@@ -75,6 +49,33 @@
                     <x-ui.label>Stock Quantity</x-ui.label>
                     <x-ui.input wire:model="stockQuantity" type="number" min="0" />
                     <x-ui.error name="stockQuantity" />
+                </x-ui.field>
+
+                <x-ui.field>
+                    <x-ui.label>Unit</x-ui.label>
+                    <x-ui.select wire:model="unit">
+                        <x-ui.select.option value="piece">Piece</x-ui.select.option>
+                        <x-ui.select.option value="kg">Kilogram (kg)</x-ui.select.option>
+                        <x-ui.select.option value="g">Gram (g)</x-ui.select.option>
+                        <x-ui.select.option value="liter">Liter (L)</x-ui.select.option>
+                        <x-ui.select.option value="ml">Milliliter (ml)</x-ui.select.option>
+                        <x-ui.select.option value="box">Box</x-ui.select.option>
+                        <x-ui.select.option value="bag">Bag</x-ui.select.option>
+                        <x-ui.select.option value="pack">Pack</x-ui.select.option>
+                    </x-ui.select>
+                    <x-ui.error name="unit" />
+                </x-ui.field>
+
+                <x-ui.field>
+                    <x-ui.label>Category</x-ui.label>
+                    <x-ui.input wire:model="category" placeholder="e.g., Dairy, Beverages, Snacks" />
+                    <x-ui.error name="category" />
+                </x-ui.field>
+
+                <x-ui.field>
+                    <x-ui.label>Expiry Date</x-ui.label>
+                    <x-ui.input wire:model="expireDate" type="date" />
+                    <x-ui.error name="expireDate" />
                 </x-ui.field>
             </div>
 
@@ -95,7 +96,7 @@
                         <th class="px-2 py-2">Name</th>
                         <th class="px-2 py-2">Barcode</th>
                            <th class="px-2 py-2">Category</th>
-                        <th class="px-2 py-2 text-right">Price</th>
+                        <th class="px-2 py-2 text-right">Sell Price</th>
                            <th class="px-2 py-2">Unit</th>
                         <th class="px-2 py-2 text-right">Stock</th>
                         <th class="px-2 py-2 text-right">Actions</th>
@@ -134,7 +135,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-2 py-6 text-center text-neutral-500">No products found.</td>
+                            <td colspan="7" class="px-2 py-6 text-center text-neutral-500">No products found.</td>
                         </tr>
                     @endforelse
                 </tbody>

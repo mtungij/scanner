@@ -42,6 +42,7 @@ it('creates sale and reduces stock on checkout', function () {
     $cashier = User::factory()->cashier()->create();
     $product = Product::factory()->create([
         'barcode' => '987654321098',
+        'buy_price' => 3.00,
         'price' => 5.00,
         'stock_quantity' => 10,
     ]);
@@ -64,7 +65,11 @@ it('creates sale and reduces stock on checkout', function () {
     expect((float) $sale->change_given)->toBe(5.00);
     expect($sale->payment_method)->toBe('M-pesa');
 
-    expect(SaleItem::query()->where('sale_id', $sale->id)->exists())->toBeTrue();
+    $saleItem = SaleItem::query()->where('sale_id', $sale->id)->first();
+
+    expect($saleItem)->not->toBeNull();
+    expect((float) $saleItem->buy_price)->toBe(3.00);
+    expect((float) $saleItem->profit_amount)->toBe(2.00);
     expect($product->fresh()->stock_quantity)->toBe(9);
 });
 
