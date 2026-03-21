@@ -81,6 +81,15 @@
 
             <x-slot:footer>
                 <x-ui.button variant="outline" x-on:click="$data.close()">Cancel</x-ui.button>
+                @if ($editingProductId)
+                    <x-ui.button
+                        variant="soft"
+                        wire:click="previewBarcodeLabel({{ $editingProductId }})"
+                        x-on:click.debounce.50ms="$nextTick(() => $modal.open('barcode-modal'))"
+                    >
+                        Print Barcode
+                    </x-ui.button>
+                @endif
                 <x-ui.button wire:click="saveProduct">Save</x-ui.button>
             </x-slot:footer>
         </x-ui.modal>
@@ -113,14 +122,6 @@
                             <td class="px-2 py-2 text-right">{{ $product->stock_quantity }}</td>
                             <td class="px-2 py-2">
                                 <div class="flex flex-wrap justify-end gap-2">
-                                    <x-ui.button
-                                        size="xs"
-                                        variant="soft"
-                                        wire:click="previewBarcodeLabel({{ $product->id }})"
-                                        x-on:click.debounce.50ms="$nextTick(() => $modal.open('barcode-modal'))"
-                                    >
-                                        Barcode
-                                    </x-ui.button>
                                     <x-ui.button
                                         size="xs"
                                         variant="outline"

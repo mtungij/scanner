@@ -48,56 +48,56 @@
             </table>
         </div>
     </x-ui.card>
+
+    @once
+        <style>
+            @media print {
+                @page {
+                    size: 58mm auto;
+                    margin: 2mm;
+                }
+
+                html,
+                body {
+                    width: 58mm;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    background: #fff !important;
+                }
+
+                body * {
+                    visibility: hidden;
+                }
+
+                #receipt-print-root,
+                #receipt-print-root * {
+                    visibility: visible;
+                }
+
+                #receipt-print-root {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 58mm;
+                    max-width: 58mm;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+
+                #receipt-print-root table {
+                    font-size: 10px;
+                }
+
+                #receipt-print-root .receipt-compact {
+                    font-size: 11px;
+                    line-height: 1.25;
+                    padding: 8px !important;
+                }
+
+                .no-print {
+                    display: none !important;
+                }
+            }
+        </style>
+    @endonce
 </div>
-
-@once
-    <style>
-        @media print {
-            @page {
-                size: 58mm auto;
-                margin: 2mm;
-            }
-
-            html,
-            body {
-                width: 58mm;
-                margin: 0 !important;
-                padding: 0 !important;
-                background: #fff !important;
-            }
-
-            body * {
-                visibility: hidden;
-            }
-
-            #receipt-print-root,
-            #receipt-print-root * {
-                visibility: visible;
-            }
-
-            #receipt-print-root {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 58mm;
-                max-width: 58mm;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            #receipt-print-root table {
-                font-size: 10px;
-            }
-
-            #receipt-print-root .receipt-compact {
-                font-size: 11px;
-                line-height: 1.25;
-                padding: 8px !important;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-        }
-    </style>
-@endonce
