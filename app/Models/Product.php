@@ -19,8 +19,12 @@ class Product extends Model
     protected $fillable = [
         'name',
         'barcode',
+        'buy_price',
         'price',
         'stock_quantity',
+        'unit',
+        'category',
+        'expire_date',
     ];
 
     /**
@@ -29,8 +33,10 @@ class Product extends Model
     protected function casts(): array
     {
         return [
+            'buy_price' => 'decimal:2',
             'price' => 'decimal:2',
             'stock_quantity' => 'integer',
+            'expire_date' => 'date',
         ];
     }
 

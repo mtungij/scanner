@@ -21,9 +21,17 @@ class Products extends Component
 
     public string $barcode = '';
 
+    public string $buyPrice = '';
+
     public string $price = '';
 
     public string $stockQuantity = '0';
+
+    public string $unit = 'piece';
+
+    public string $category = '';
+
+    public string $expireDate = '';
 
     public string $previewBarcode = '';
 
@@ -41,8 +49,12 @@ class Products extends Component
         return [
             'name' => ['required', 'string', 'max:255'],
             'barcode' => ['required', 'string', 'max:255', Rule::unique('products', 'barcode')->ignore($this->editingProductId)],
+            'buyPrice' => ['nullable', 'numeric', 'min:0.01'],
             'price' => ['required', 'numeric', 'min:0.01'],
             'stockQuantity' => ['required', 'integer', 'min:0'],
+            'unit' => ['required', 'string', 'max:100'],
+            'category' => ['nullable', 'string', 'max:255'],
+            'expireDate' => ['nullable', 'date'],
         ];
     }
 
@@ -85,8 +97,12 @@ class Products extends Component
             [
                 'name' => $validated['name'],
                 'barcode' => $validated['barcode'],
+                'buy_price' => $validated['buyPrice'] ?: null,
                 'price' => $validated['price'],
                 'stock_quantity' => $validated['stockQuantity'],
+                'unit' => $validated['unit'],
+                'category' => $validated['category'] ?: null,
+                'expire_date' => $validated['expireDate'] ?: null,
             ]
         );
 
@@ -110,8 +126,12 @@ class Products extends Component
         $this->editingProductId = $product->id;
         $this->name = $product->name;
         $this->barcode = $product->barcode;
+        $this->buyPrice = (string) ($product->buy_price ?? '');
         $this->price = (string) $product->price;
         $this->stockQuantity = (string) $product->stock_quantity;
+        $this->unit = $product->unit ?? 'piece';
+        $this->category = $product->category ?? '';
+        $this->expireDate = $product->expire_date ? $product->expire_date->format('Y-m-d') : '';
         $this->barcodeWasGenerated = false;
     }
 
@@ -132,8 +152,9 @@ class Products extends Component
     public function resetForm(): void
     {
         $this->resetValidation();
-        $this->reset(['editingProductId', 'name', 'barcode', 'price', 'stockQuantity', 'barcodeWasGenerated']);
+        $this->reset(['editingProductId', 'name', 'barcode', 'buyPrice', 'price', 'stockQuantity', 'unit', 'category', 'expireDate', 'barcodeWasGenerated']);
         $this->stockQuantity = '0';
+        $this->unit = 'piece';
     }
 
     public function render()

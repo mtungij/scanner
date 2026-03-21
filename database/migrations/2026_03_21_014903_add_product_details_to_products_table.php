@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('products', function (Blueprint $table) {
+            $table->decimal('buy_price', 10, 2)->nullable()->after('barcode');
+            $table->string('unit')->default('piece')->after('stock_quantity');
+            $table->string('category')->nullable()->after('unit');
+            $table->date('expire_date')->nullable()->after('category');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn(['buy_price', 'unit', 'category', 'expire_date']);
+        });
+    }
+};
