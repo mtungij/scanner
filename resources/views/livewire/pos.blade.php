@@ -77,7 +77,7 @@
                     <div class="flex items-center justify-between rounded-lg border border-gray-300 p-3 dark:border-neutral-700" wire:key="cart-item-{{ $item['product_id'] }}">
                         <div>
                             <x-ui.text class="font-medium">{{ $item['name'] }}</x-ui.text>
-                            <x-ui.text class="text-xs opacity-60">{{ $item['barcode'] }} · ${{ number_format((float) $item['price'], 2) }}</x-ui.text>
+                            <x-ui.text class="text-xs opacity-60">{{ number_format((float) $item['price'], 2) }}</x-ui.text>
                         </div>
 
                         <div class="flex items-center gap-2">
