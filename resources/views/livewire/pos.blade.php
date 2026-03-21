@@ -32,8 +32,6 @@
 
             <x-ui.separator class="my-4" />
 
-            <x-ui.separator class="my-4" />
-
             <x-ui.field>
                 <x-ui.label>Search by Product Name</x-ui.label>
                 <div class="flex gap-2">
@@ -104,12 +102,12 @@
 
                 <x-ui.field>
                     <x-ui.label>Payment Method</x-ui.label>
-                    <select wire:model="paymentMethod" class="block w-full rounded-md border border-gray-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900">
-                        <option value="Cash">Cash</option>
-                        <option value="M-pesa">M-pesa</option>
-                        <option value="Tigo-pesa">Tigo-pesa</option>
-                        <option value="Bank">Bank</option>
-                    </select>
+                    <x-ui.select wire:model="paymentMethod">
+                        <x-ui.select.option value="Cash">Cash</x-ui.select.option>
+                        <x-ui.select.option value="M-pesa">M-pesa</x-ui.select.option>
+                        <x-ui.select.option value="Tigo-pesa">Tigo-pesa</x-ui.select.option>
+                        <x-ui.select.option value="Bank">Bank</x-ui.select.option>
+                    </x-ui.select>
                     <x-ui.error name="paymentMethod" />
                 </x-ui.field>
 
