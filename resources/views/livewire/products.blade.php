@@ -224,6 +224,11 @@
         scanner: null,
         statusText: 'Scanner off',
         async start() {
+            if (!this.canUseCamera()) {
+                this.statusText = 'Camera needs HTTPS (or localhost). Open app with https:// URL.';
+                return;
+            }
+
             if (!window.Html5Qrcode) {
                 await this.loadScannerLibrary();
             }
@@ -258,7 +263,7 @@
 
                 this.statusText = 'Back camera active';
             } catch (error) {
-                this.statusText = 'Unable to start scanner. Allow camera permission and use HTTPS.';
+                this.statusText = this.getScannerErrorMessage(error);
                 await this.stop();
             }
         },
@@ -307,6 +312,26 @@
                 script.onerror = reject;
                 document.head.appendChild(script);
             });
+        },
+        canUseCamera() {
+            return window.isSecureContext || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        },
+        getScannerErrorMessage(error) {
+            const message = (error && error.message ? error.message : '').toLowerCase();
+
+            if (message.includes('notallowederror') || message.includes('permission') || message.includes('denied')) {
+                return 'Camera blocked. Allow camera permission in browser/site settings.';
+            }
+
+            if (message.includes('notfounderror') || message.includes('no cameras')) {
+                return 'No camera found on this device.';
+            }
+
+            if (message.includes('secure context') || message.includes('https')) {
+                return 'Camera requires HTTPS (or localhost).';
+            }
+
+            return 'Unable to start scanner. Check camera permission and HTTPS.';
         },
     });
 </script>
