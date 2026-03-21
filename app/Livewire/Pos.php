@@ -20,6 +20,8 @@ class Pos extends Component
 
     public string $paymentMethod = 'Cash';
 
+    public string $searchProductId = '';
+
     /** @var array<int, array<string, mixed>> */
     public array $cart = [];
 
@@ -95,6 +97,44 @@ class Pos extends Component
     public function removeItem(int $productId): void
     {
         unset($this->cart[$productId]);
+    }
+
+    public function addProductBySearch(): void
+    {
+        if ($this->searchProductId === '') {
+            return;
+        }
+
+        $product = Product::query()->findOrFail((int) $this->searchProductId);
+
+        $cartItem = $this->cart[$product->id] ?? null;
+        $nextQuantity = ($cartItem['quantity'] ?? 0) + 1;
+
+        if ($nextQuantity > $product->stock_quantity) {
+            Toast::warning('Insufficient stock for this product.');
+
+            return;
+        }
+
+        $this->cart[$product->id] = [
+            'product_id' => $product->id,
+            'name' => $product->name,
+            'barcode' => $product->barcode,
+            'price' => (float) $product->price,
+            'quantity' => $nextQuantity,
+            'stock_quantity' => $product->stock_quantity,
+        ];
+
+        $this->searchProductId = '';
+    }
+
+    public function getAvailableProductsProperty(): array
+    {
+        return Product::query()
+            ->where('stock_quantity', '>', 0)
+            ->orderBy('name')
+            ->get(['id', 'name', 'barcode', 'price', 'stock_quantity'])
+            ->toArray();
     }
 
     public function getCartCountProperty(): int

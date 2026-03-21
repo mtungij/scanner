@@ -32,6 +32,29 @@
 
             <x-ui.separator class="my-4" />
 
+            <x-ui.separator class="my-4" />
+
+            <x-ui.field>
+                <x-ui.label>Search by Product Name</x-ui.label>
+                <div class="flex gap-2">
+                    <x-ui.select
+                        placeholder="Find a product..."
+                        icon="package"
+                        searchable
+                        wire:model="searchProductId"
+                    >
+                        @forelse ($this->availableProducts as $product)
+                            <x-ui.select.option value="{{ $product['id'] }}">
+                                {{ $product['name'] }} ({{ $product['barcode'] }}) - ${{ number_format((float) $product['price'], 2) }}
+                            </x-ui.select.option>
+                        @empty
+                            <x-ui.select.option value="" disabled>No products available</x-ui.select.option>
+                        @endforelse
+                    </x-ui.select>
+                    <x-ui.button type="button" wire:click="addProductBySearch">Add</x-ui.button>
+                </div>
+            </x-ui.field>
+
             <x-ui.field>
                 <x-ui.label>Manual Barcode Input</x-ui.label>
                 <div class="flex gap-2">
