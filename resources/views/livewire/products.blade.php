@@ -19,10 +19,17 @@
 
                 <x-ui.field>
                     <x-ui.label>Barcode</x-ui.label>
-                    <div class="flex gap-2">
-                        <x-ui.input wire:model="barcode" placeholder="e.g. 123456789012" />
+                    <div x-data="productBarcodeScanner($wire)" class="space-y-2">
+                        <div class="flex gap-2">
+                            <x-ui.input wire:model="barcode" placeholder="e.g. 123456789012" />
+                            <x-ui.button type="button" variant="outline" x-on:click="start()">Scan</x-ui.button>
+                            <x-ui.button type="button" variant="outline" x-on:click="stop()">Stop</x-ui.button>
+                        </div>
+                        <div id="product-barcode-reader" class="overflow-hidden rounded-lg border border-gray-300 dark:border-neutral-700"></div>
+                        <x-ui.text class="text-xs opacity-60" x-text="statusText"></x-ui.text>
                         <x-ui.button type="button" variant="outline" wire:click="generateBarcode">Generate</x-ui.button>
                     </div>
+                    <x-ui.text class="text-xs opacity-60">Scan existing barcode or leave empty and click Save to auto-generate.</x-ui.text>
                     <x-ui.error name="barcode" />
                 </x-ui.field>
 
@@ -210,6 +217,96 @@
             printWindow.document.close();
             printWindow.focus();
             printWindow.print();
+        },
+    });
+
+    window.productBarcodeScanner = (wire) => ({
+        scanner: null,
+        statusText: 'Scanner off',
+        async start() {
+            if (!window.Html5Qrcode) {
+                await this.loadScannerLibrary();
+            }
+
+            if (this.scanner) {
+                this.statusText = 'Scanner already running';
+                return;
+            }
+
+            this.scanner = new Html5Qrcode('product-barcode-reader');
+            this.statusText = 'Starting scanner...';
+
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                if (!devices.length) {
+                    this.statusText = 'No camera detected';
+                    return;
+                }
+
+                const selectedCamera = this.pickBackCamera(devices);
+
+                await this.scanner.start(
+                    selectedCamera.id,
+                    { fps: 10, qrbox: { width: 260, height: 100 } },
+                    async (decodedText) => {
+                        await wire.call('setScannedBarcode', decodedText);
+                        this.statusText = `Captured: ${decodedText}`;
+                        await this.stop();
+                    },
+                    () => {}
+                );
+
+                this.statusText = 'Back camera active';
+            } catch (error) {
+                this.statusText = 'Unable to start scanner. Allow camera permission and use HTTPS.';
+                await this.stop();
+            }
+        },
+        async stop() {
+            if (!this.scanner) {
+                this.statusText = 'Scanner off';
+                return;
+            }
+
+            try {
+                await this.scanner.stop();
+            } catch (error) {
+            }
+
+            try {
+                await this.scanner.clear();
+            } catch (error) {
+            }
+
+            this.scanner = null;
+        },
+        pickBackCamera(devices) {
+            const backCameraKeywords = ['back', 'rear', 'environment', 'wide', 'ultra'];
+
+            const preferredCamera = devices.find((device) => {
+                const label = (device.label ?? '').toLowerCase();
+
+                return backCameraKeywords.some((keyword) => label.includes(keyword));
+            });
+
+            return preferredCamera ?? devices[devices.length - 1];
+        },
+        async loadScannerLibrary() {
+            await new Promise((resolve, reject) => {
+                const existingScript = document.querySelector('script[data-product-scanner]');
+                if (existingScript) {
+                    existingScript.addEventListener('load', resolve, { once: true });
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/html5-qrcode/html5-qrcode.min.js';
+                script.async = true;
+                script.dataset.productScanner = '1';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
         },
     });
 </script>

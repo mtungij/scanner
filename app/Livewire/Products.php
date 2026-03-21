@@ -29,6 +29,8 @@ class Products extends Component
 
     public string $previewName = '';
 
+    public bool $barcodeWasGenerated = false;
+
     public function mount(): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
@@ -57,18 +59,28 @@ class Products extends Component
 
     public function generateBarcode(): void
     {
-        do {
-            $barcode = str_pad((string) random_int(0, 999_999_999_999), 12, '0', STR_PAD_LEFT);
-        } while (Product::query()->where('barcode', $barcode)->exists());
+        $this->barcode = $this->createUniqueBarcode();
+        $this->barcodeWasGenerated = true;
+    }
 
-        $this->barcode = $barcode;
+    public function setScannedBarcode(string $barcode): void
+    {
+        $this->barcode = trim($barcode);
+        $this->barcodeWasGenerated = false;
     }
 
     public function saveProduct(): void
     {
+        $isCreating = $this->editingProductId === null;
+
+        if (blank($this->barcode)) {
+            $this->barcode = $this->createUniqueBarcode();
+            $this->barcodeWasGenerated = true;
+        }
+
         $validated = $this->validate();
 
-        Product::query()->updateOrCreate(
+        $product = Product::query()->updateOrCreate(
             ['id' => $this->editingProductId],
             [
                 'name' => $validated['name'],
@@ -79,6 +91,12 @@ class Products extends Component
         );
 
         $message = $this->editingProductId ? 'Product updated successfully.' : 'Product created successfully.';
+
+        if ($isCreating && $this->barcodeWasGenerated) {
+            $this->previewBarcode = $product->barcode;
+            $this->previewName = $product->name;
+            $this->dispatch('open-modal', id: 'barcode-modal');
+        }
 
         $this->resetForm();
         $this->dispatch('close-modal', id: 'product-modal');
@@ -94,6 +112,7 @@ class Products extends Component
         $this->barcode = $product->barcode;
         $this->price = (string) $product->price;
         $this->stockQuantity = (string) $product->stock_quantity;
+        $this->barcodeWasGenerated = false;
     }
 
     public function deleteProduct(int $productId): void
@@ -113,12 +132,21 @@ class Products extends Component
     public function resetForm(): void
     {
         $this->resetValidation();
-        $this->reset(['editingProductId', 'name', 'barcode', 'price', 'stockQuantity']);
+        $this->reset(['editingProductId', 'name', 'barcode', 'price', 'stockQuantity', 'barcodeWasGenerated']);
         $this->stockQuantity = '0';
     }
 
     public function render()
     {
         return view('livewire.products');
+    }
+
+    protected function createUniqueBarcode(): string
+    {
+        do {
+            $barcode = str_pad((string) random_int(0, 999_999_999_999), 12, '0', STR_PAD_LEFT);
+        } while (Product::query()->where('barcode', $barcode)->exists());
+
+        return $barcode;
     }
 }
