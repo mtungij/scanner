@@ -18,6 +18,8 @@ class Pos extends Component
 
     public string $paymentAmount = '';
 
+    public string $paymentMethod = 'Cash';
+
     /** @var array<int, array<string, mixed>> */
     public array $cart = [];
 
@@ -128,6 +130,7 @@ class Pos extends Component
 
         $this->validate([
             'paymentAmount' => ['required', 'numeric', 'min:'.$this->total],
+            'paymentMethod' => ['required', 'string', 'in:Cash,M-pesa,Tigo-pesa,Bank'],
         ]);
 
         $sale = DB::transaction(function (): Sale {
@@ -136,6 +139,7 @@ class Pos extends Component
                 'total_amount' => $this->total,
                 'payment_received' => (float) $this->paymentAmount,
                 'change_given' => $this->change,
+                'payment_method' => $this->paymentMethod,
             ]);
 
             foreach ($this->cart as $item) {
@@ -158,7 +162,7 @@ class Pos extends Component
             return $sale;
         });
 
-        $this->reset(['cart', 'barcodeInput', 'paymentAmount']);
+        $this->reset(['cart', 'barcodeInput', 'paymentAmount', 'paymentMethod']);
         Toast::success('Checkout complete.');
 
         $this->redirectRoute('receipt', ['sale' => $sale->id], navigate: true);

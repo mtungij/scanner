@@ -80,7 +80,18 @@
                 </div>
 
                 <x-ui.field>
-                    <x-ui.label>Payment (Cash)</x-ui.label>
+                    <x-ui.label>Payment Method</x-ui.label>
+                    <select wire:model="paymentMethod" class="block w-full rounded-md border border-gray-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900">
+                        <option value="Cash">Cash</option>
+                        <option value="M-pesa">M-pesa</option>
+                        <option value="Tigo-pesa">Tigo-pesa</option>
+                        <option value="Bank">Bank</option>
+                    </select>
+                    <x-ui.error name="paymentMethod" />
+                </x-ui.field>
+
+                <x-ui.field>
+                    <x-ui.label>Payment Amount</x-ui.label>
                     <x-ui.input wire:model="paymentAmount" type="number" step="0.01" min="0" placeholder="0.00" />
                     <x-ui.error name="paymentAmount" />
                 </x-ui.field>

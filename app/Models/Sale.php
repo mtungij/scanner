@@ -22,6 +22,7 @@ class Sale extends Model
         'total_amount',
         'payment_received',
         'change_given',
+        'payment_method',
     ];
 
     /**

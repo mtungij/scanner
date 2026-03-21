@@ -52,6 +52,7 @@ it('creates sale and reduces stock on checkout', function () {
         ->set('barcodeInput', $product->barcode)
         ->call('addProductByBarcode')
         ->set('paymentAmount', '10.00')
+        ->set('paymentMethod', 'M-pesa')
         ->call('checkout')
         ->assertHasNoErrors();
 
@@ -61,6 +62,7 @@ it('creates sale and reduces stock on checkout', function () {
     expect((float) $sale->total_amount)->toBe(5.00);
     expect((float) $sale->payment_received)->toBe(10.00);
     expect((float) $sale->change_given)->toBe(5.00);
+    expect($sale->payment_method)->toBe('M-pesa');
 
     expect(SaleItem::query()->where('sale_id', $sale->id)->exists())->toBeTrue();
     expect($product->fresh()->stock_quantity)->toBe(9);
