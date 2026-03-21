@@ -242,6 +242,28 @@
             this.statusText = 'Starting scanner...';
 
             try {
+                const onDecode = async (decodedText) => {
+                    await wire.call('setScannedBarcode', decodedText);
+                    this.statusText = `Captured: ${decodedText}`;
+                    await this.stop();
+                };
+
+                const config = { fps: 10, qrbox: { width: 260, height: 100 } };
+
+                try {
+                    await this.scanner.start(
+                        { facingMode: { exact: 'environment' } },
+                        config,
+                        onDecode,
+                        () => {}
+                    );
+
+                    this.statusText = 'Back camera active';
+
+                    return;
+                } catch (error) {
+                }
+
                 const devices = await Html5Qrcode.getCameras();
                 if (!devices.length) {
                     this.statusText = 'No camera detected';
@@ -252,16 +274,12 @@
 
                 await this.scanner.start(
                     selectedCamera.id,
-                    { fps: 10, qrbox: { width: 260, height: 100 } },
-                    async (decodedText) => {
-                        await wire.call('setScannedBarcode', decodedText);
-                        this.statusText = `Captured: ${decodedText}`;
-                        await this.stop();
-                    },
+                    config,
+                    onDecode,
                     () => {}
                 );
 
-                this.statusText = 'Back camera active';
+                this.statusText = `Back camera active (${selectedCamera.label || 'camera'})`;
             } catch (error) {
                 this.statusText = this.getScannerErrorMessage(error);
                 await this.stop();
@@ -331,7 +349,11 @@
                 return 'Camera requires HTTPS (or localhost).';
             }
 
-            return 'Unable to start scanner. Check camera permission and HTTPS.';
+            if (message.includes('notreadableerror') || message.includes('trackstarterror')) {
+                return 'Camera is busy. Close other camera apps/tabs and try again.';
+            }
+
+            return `Unable to start scanner: ${error?.message || 'Unknown error'}`;
         },
     });
 </script>
