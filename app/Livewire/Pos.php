@@ -16,6 +16,10 @@ class Pos extends Component
 {
     public string $barcodeInput = '';
 
+    public string $scanMessage = 'Ready to scan a product barcode.';
+
+    public string $scanMessageType = 'neutral';
+
     public string $paymentAmount = '';
 
     public string $paymentMethod = 'Cash';
@@ -34,37 +38,22 @@ class Pos extends Component
     public function addProductByBarcode(): void
     {
         if ($this->barcodeInput === '') {
+            $this->focusBarcodeInput();
+
             return;
         }
 
         $product = Product::query()->where('barcode', $this->barcodeInput)->first();
 
         if (! $product) {
+            $this->setScanFeedback(sprintf('Barcode %s was not found.', $this->barcodeInput), 'error');
             Toast::error('Product not found for this barcode.');
+            $this->focusBarcodeInput();
 
             return;
         }
 
-        $cartItem = $this->cart[$product->id] ?? null;
-        $nextQuantity = ($cartItem['quantity'] ?? 0) + 1;
-
-        if ($nextQuantity > $product->stock_quantity) {
-            Toast::warning('Insufficient stock for this product.');
-
-            return;
-        }
-
-        $this->cart[$product->id] = [
-            'product_id' => $product->id,
-            'name' => $product->name,
-            'barcode' => $product->barcode,
-            'price' => (float) $product->price,
-            'quantity' => $nextQuantity,
-            'stock_quantity' => $product->stock_quantity,
-        ];
-
-        $this->autoSetPaymentAmount();
-        $this->barcodeInput = '';
+        $this->addProductToCart($product, true);
     }
 
     public function increaseQuantity(int $productId): void
@@ -108,25 +97,7 @@ class Pos extends Component
 
         $product = Product::query()->findOrFail((int) $this->searchProductId);
 
-        $cartItem = $this->cart[$product->id] ?? null;
-        $nextQuantity = ($cartItem['quantity'] ?? 0) + 1;
-
-        if ($nextQuantity > $product->stock_quantity) {
-            Toast::warning('Insufficient stock for this product.');
-
-            return;
-        }
-
-        $this->cart[$product->id] = [
-            'product_id' => $product->id,
-            'name' => $product->name,
-            'barcode' => $product->barcode,
-            'price' => (float) $product->price,
-            'quantity' => $nextQuantity,
-            'stock_quantity' => $product->stock_quantity,
-        ];
-
-        $this->autoSetPaymentAmount();
+        $this->addProductToCart($product);
         $this->searchProductId = '';
     }
 
@@ -222,5 +193,50 @@ class Pos extends Component
     public function render()
     {
         return view('livewire.pos');
+    }
+
+    private function addProductToCart(Product $product, bool $focusBarcodeInput = false): void
+    {
+        $cartItem = $this->cart[$product->id] ?? null;
+        $nextQuantity = ($cartItem['quantity'] ?? 0) + 1;
+
+        if ($nextQuantity > $product->stock_quantity) {
+            $this->setScanFeedback(sprintf('%s is out of stock for another scan.', $product->name), 'warning');
+            Toast::warning('Insufficient stock for this product.');
+
+            if ($focusBarcodeInput) {
+                $this->focusBarcodeInput();
+            }
+
+            return;
+        }
+
+        $this->cart[$product->id] = [
+            'product_id' => $product->id,
+            'name' => $product->name,
+            'barcode' => $product->barcode,
+            'price' => (float) $product->price,
+            'quantity' => $nextQuantity,
+            'stock_quantity' => $product->stock_quantity,
+        ];
+
+        $this->setScanFeedback(sprintf('Added %s to cart from barcode %s.', $product->name, $product->barcode), 'success');
+        $this->autoSetPaymentAmount();
+        $this->barcodeInput = '';
+
+        if ($focusBarcodeInput) {
+            $this->focusBarcodeInput();
+        }
+    }
+
+    private function setScanFeedback(string $message, string $type): void
+    {
+        $this->scanMessage = $message;
+        $this->scanMessageType = $type;
+    }
+
+    private function focusBarcodeInput(): void
+    {
+        $this->dispatch('focus-pos-barcode-input');
     }
 }

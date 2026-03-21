@@ -55,9 +55,34 @@
 
             <x-ui.field>
                 <x-ui.label>Manual Barcode Input</x-ui.label>
-                <div class="flex gap-2">
-                    <x-ui.input wire:model="barcodeInput" placeholder="Enter barcode" />
-                    <x-ui.button type="button" wire:click="addProductByBarcode">Add</x-ui.button>
+                <div
+                    x-data
+                    x-on:focus-pos-barcode-input.window="$nextTick(() => $refs.barcodeInput?.focus())"
+                    class="space-y-2"
+                >
+                    <div class="flex gap-2">
+                        <x-ui.input
+                            x-ref="barcodeInput"
+                            wire:model.live.debounce.0ms="barcodeInput"
+                            wire:keydown.enter.prevent="addProductByBarcode"
+                            placeholder="Enter barcode"
+                            autocomplete="off"
+                        />
+                        <x-ui.button type="button" wire:click="addProductByBarcode">Add</x-ui.button>
+                    </div>
+
+                    @php
+                        $scanFeedbackClasses = match ($scanMessageType) {
+                            'success' => 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300',
+                            'warning' => 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300',
+                            'error' => 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-300',
+                            default => 'border-gray-200 bg-gray-50 text-gray-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300',
+                        };
+                    @endphp
+
+                    <div class="rounded-lg border px-3 py-2 text-sm {{ $scanFeedbackClasses }}" aria-live="polite">
+                        {{ $scanMessage }}
+                    </div>
                 </div>
             </x-ui.field>
         </x-ui.card>

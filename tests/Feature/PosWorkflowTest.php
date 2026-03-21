@@ -73,6 +73,43 @@ it('creates sale and reduces stock on checkout', function () {
     expect($product->fresh()->stock_quantity)->toBe(9);
 });
 
+it('adds an existing scanned barcode to the cart without creating a new product', function () {
+    $cashier = User::factory()->cashier()->create();
+    $product = Product::factory()->create([
+        'name' => 'Scanner Test Product',
+        'barcode' => '111222333444',
+        'price' => 7.50,
+        'stock_quantity' => 5,
+    ]);
+
+    actingAs($cashier);
+
+    livewire(Pos::class)
+        ->call('scanBarcode', $product->barcode)
+        ->assertSet('cartCount', 1)
+        ->assertSet('scanMessage', 'Added Scanner Test Product to cart from barcode 111222333444.')
+        ->assertSet('scanMessageType', 'success')
+        ->assertSet("cart.{$product->id}.product_id", $product->id)
+        ->assertSet("cart.{$product->id}.barcode", $product->barcode)
+        ->assertSet("cart.{$product->id}.quantity", 1)
+        ->assertDispatched('focus-pos-barcode-input');
+
+    expect(Product::query()->count())->toBe(1);
+});
+
+it('shows an error message for an unknown scanned barcode', function () {
+    $cashier = User::factory()->cashier()->create();
+
+    actingAs($cashier);
+
+    livewire(Pos::class)
+        ->call('scanBarcode', '999888777666')
+        ->assertSet('cartCount', 0)
+        ->assertSet('scanMessage', 'Barcode 999888777666 was not found.')
+        ->assertSet('scanMessageType', 'error')
+        ->assertDispatched('focus-pos-barcode-input');
+});
+
 it('allows admin to create cashier from users screen', function () {
     $admin = User::factory()->admin()->create();
 
