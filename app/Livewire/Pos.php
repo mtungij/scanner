@@ -63,6 +63,7 @@ class Pos extends Component
             'stock_quantity' => $product->stock_quantity,
         ];
 
+        $this->autoSetPaymentAmount();
         $this->barcodeInput = '';
     }
 
@@ -125,7 +126,15 @@ class Pos extends Component
             'stock_quantity' => $product->stock_quantity,
         ];
 
+        $this->autoSetPaymentAmount();
         $this->searchProductId = '';
+    }
+
+    private function autoSetPaymentAmount(): void
+    {
+        if ($this->paymentAmount === '' && $this->total > 0) {
+            $this->paymentAmount = (string) number_format($this->total, 2, '.', '');
+        }
     }
 
     public function getAvailableProductsProperty(): array

@@ -117,6 +117,7 @@
                 <x-ui.field>
                     <x-ui.label>Amount Received (Payment)</x-ui.label>
                     <x-ui.input wire:model.live="paymentAmount" type="number" step="0.01" min="0" placeholder="0.00" />
+                    <x-ui.text class="mt-1 text-xs opacity-60">Auto-filled with amount to pay. Edit to calculate change.</x-ui.text>
                     <x-ui.error name="paymentAmount" />
                 </x-ui.field>
 
