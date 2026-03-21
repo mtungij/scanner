@@ -39,7 +39,7 @@
                 <div class="flex gap-2">
                     <x-ui.select
                         placeholder="Find a product..."
-                        icon="package"
+                        icon="magnifying-glass"
                         searchable
                         wire:model="searchProductId"
                     >
