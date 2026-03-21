@@ -33,7 +33,7 @@
             <x-ui.separator class="my-4" />
 
             <x-ui.field>
-                <x-ui.label>Search by Product Name</x-ui.label>
+                <x-ui.label>Search  Product Name</x-ui.label>
                 <div class="flex gap-2">
                     <x-ui.select
                         placeholder="Find a product..."
