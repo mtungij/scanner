@@ -7,6 +7,7 @@
     <div class="grid gap-4 lg:grid-cols-2">
         <x-ui.card size="xl">
             <x-ui.heading level="h2" size="sm" class="mb-3">Scan Barcode</x-ui.heading>
+            <x-ui.text class="mb-3 text-xs opacity-60">Scan product barcodes here on POS. The Products page is only for managing product data.</x-ui.text>
 
             <div x-data="posScanner($wire)" class="space-y-3">
                 <div id="barcode-reader" class="overflow-hidden rounded-lg border border-gray-300 dark:border-neutral-700"></div>
@@ -122,26 +123,31 @@
             this.statusText = 'Starting camera...';
             this.scanner = new Html5Qrcode('barcode-reader');
 
-            const devices = await Html5Qrcode.getCameras();
-            if (!devices.length) {
-                this.statusText = 'No camera detected';
-                return;
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                if (!devices.length) {
+                    this.statusText = 'No camera detected on this device';
+                    return;
+                }
+
+                const selectedCamera = this.pickBackCamera(devices);
+                this.currentCameraId = selectedCamera.id;
+                this.currentCameraLabel = selectedCamera.label || 'Back camera';
+
+                await this.scanner.start(
+                    this.currentCameraId,
+                    { fps: 10, qrbox: { width: 250, height: 100 } },
+                    (decodedText) => {
+                        this.handleDecoded(decodedText, wire);
+                    },
+                    () => {}
+                );
+
+                this.statusText = `Back camera active (${this.currentCameraLabel})`;
+            } catch (error) {
+                this.statusText = this.formatScannerError(error);
+                await this.stop();
             }
-
-            const selectedCamera = this.pickBackCamera(devices);
-            this.currentCameraId = selectedCamera.id;
-            this.currentCameraLabel = selectedCamera.label || 'Back camera';
-
-            await this.scanner.start(
-                this.currentCameraId,
-                { fps: 10, qrbox: { width: 250, height: 100 } },
-                (decodedText) => {
-                    this.handleDecoded(decodedText, wire);
-                },
-                () => {}
-            );
-
-            this.statusText = `Back camera active (${this.currentCameraLabel})`;
         },
         async stop() {
             if (!this.scanner) {
@@ -254,6 +260,19 @@
                 script.onerror = reject;
                 document.head.appendChild(script);
             });
+        },
+        formatScannerError(error) {
+            const message = (error && error.message) ? error.message.toLowerCase() : '';
+
+            if (message.includes('permission') || message.includes('notallowederror')) {
+                return 'Camera permission denied. Allow camera access in browser settings.';
+            }
+
+            if (message.includes('secure context') || message.includes('https')) {
+                return 'Camera requires HTTPS (or localhost). Open POS on https to scan.';
+            }
+
+            return 'Unable to start camera. Check browser permission and use HTTPS on phone.';
         },
     });
 </script>

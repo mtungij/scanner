@@ -71,6 +71,14 @@
                                 <div class="flex justify-end gap-2">
                                     <x-ui.button
                                         size="xs"
+                                        variant="soft"
+                                        wire:click="previewBarcodeLabel({{ $product->id }})"
+                                        x-on:click.debounce.50ms="$nextTick(() => $modal.open('barcode-modal'))"
+                                    >
+                                        Barcode
+                                    </x-ui.button>
+                                    <x-ui.button
+                                        size="xs"
                                         variant="outline"
                                         wire:click="editProduct({{ $product->id }})"
                                         x-on:click.debounce.50ms="$nextTick(() => $modal.open('product-modal'))"
@@ -90,4 +98,119 @@
             </table>
         </div>
     </x-ui.card>
+
+    <x-ui.modal id="barcode-modal" heading="Barcode Label" width="md">
+        <div x-data="barcodeLabelRenderer(@entangle('previewBarcode'), @entangle('previewName'))" x-init="init()" class="space-y-4">
+            <div class="rounded-lg border border-gray-300 bg-white p-4 text-center dark:border-neutral-700 dark:bg-neutral-900">
+                <x-ui.text class="mb-2 text-sm font-medium" x-text="productName || 'Product'"></x-ui.text>
+                <svg x-ref="barcodeSvg" class="mx-auto"></svg>
+                <x-ui.text class="mt-2 font-mono text-xs" x-text="barcodeValue"></x-ui.text>
+            </div>
+
+            <x-ui.text class="text-xs opacity-60">
+                Print this label or show it on another screen, then scan from POS camera.
+            </x-ui.text>
+        </div>
+
+        <x-slot:footer>
+            <x-ui.button variant="outline" x-on:click="$data.close()">Close</x-ui.button>
+            <button
+                type="button"
+                class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-content"
+                x-on:click="window.printBarcodeLabel?.()"
+            >
+                Print Label
+            </button>
+        </x-slot:footer>
+    </x-ui.modal>
 </div>
+
+@script
+<script>
+    window.barcodeLabelRenderer = (barcodeState, nameState) => ({
+        barcodeValue: barcodeState,
+        productName: nameState,
+        async init() {
+            await this.loadJsBarcode();
+            this.$watch('barcodeValue', async () => {
+                await this.renderBarcode();
+            });
+
+            window.printBarcodeLabel = () => this.printLabel();
+
+            await this.renderBarcode();
+        },
+        async loadJsBarcode() {
+            if (window.JsBarcode) {
+                return;
+            }
+
+            await new Promise((resolve, reject) => {
+                const existingScript = document.querySelector('script[data-jsbarcode]');
+                if (existingScript) {
+                    existingScript.addEventListener('load', resolve, { once: true });
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
+                script.async = true;
+                script.dataset.jsbarcode = '1';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        },
+        async renderBarcode() {
+            if (!this.barcodeValue || !this.$refs.barcodeSvg || !window.JsBarcode) {
+                return;
+            }
+
+            window.JsBarcode(this.$refs.barcodeSvg, this.barcodeValue, {
+                format: 'CODE128',
+                displayValue: false,
+                width: 2,
+                height: 70,
+                margin: 4,
+            });
+        },
+        printLabel() {
+            if (!this.$refs.barcodeSvg || !this.barcodeValue) {
+                return;
+            }
+
+            const printWindow = window.open('', '_blank', 'width=420,height=600');
+            if (!printWindow) {
+                return;
+            }
+
+            const svgMarkup = this.$refs.barcodeSvg.outerHTML;
+
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Barcode Label</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 0; padding: 24px; }
+                            .label { border: 1px solid #ddd; border-radius: 8px; padding: 16px; text-align: center; }
+                            .name { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+                            .code { font-family: monospace; font-size: 12px; margin-top: 10px; }
+                            svg { width: 100%; height: auto; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="label">
+                            <div class="name">${this.productName || 'Product'}</div>
+                            ${svgMarkup}
+                            <div class="code">${this.barcodeValue}</div>
+                        </div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        },
+    });
+</script>
+@endscript

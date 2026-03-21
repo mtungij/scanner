@@ -25,6 +25,10 @@ class Products extends Component
 
     public string $stockQuantity = '0';
 
+    public string $previewBarcode = '';
+
+    public string $previewName = '';
+
     public function mount(): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
@@ -96,6 +100,14 @@ class Products extends Component
     {
         Product::query()->findOrFail($productId)->delete();
         Toast::success('Product deleted successfully.');
+    }
+
+    public function previewBarcodeLabel(int $productId): void
+    {
+        $product = Product::query()->findOrFail($productId);
+
+        $this->previewBarcode = $product->barcode;
+        $this->previewName = $product->name;
     }
 
     public function resetForm(): void
