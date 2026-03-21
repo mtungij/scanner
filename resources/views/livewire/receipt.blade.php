@@ -14,9 +14,10 @@
     <x-ui.card size="xl" class="space-y-4">
         <div class="grid gap-2 sm:grid-cols-2">
             <x-ui.text>Cashier: <strong>{{ $sale->user?->name ?? 'N/A' }}</strong></x-ui.text>
-            <x-ui.text>Payment: <strong>${{ number_format((float) $sale->payment_received, 2) }}</strong></x-ui.text>
+            <x-ui.text>Payment Method: <strong>{{ $sale->payment_method ?? 'Cash' }}</strong></x-ui.text>
             <x-ui.text>Total: <strong>${{ number_format((float) $sale->total_amount, 2) }}</strong></x-ui.text>
-            <x-ui.text>Change: <strong>${{ number_format((float) $sale->change_given, 2) }}</strong></x-ui.text>
+            <x-ui.text>Payment: <strong>${{ number_format((float) $sale->payment_received, 2) }}</strong></x-ui.text>
+            <x-ui.text colspan="2">Change: <strong>${{ number_format((float) $sale->change_given, 2) }}</strong></x-ui.text>
         </div>
 
         <x-ui.separator />
