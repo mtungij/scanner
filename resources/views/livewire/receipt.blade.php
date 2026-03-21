@@ -84,13 +84,36 @@
                     padding: 0 !important;
                 }
 
+                #receipt-print-root,
+                #receipt-print-root * {
+                    color: #000 !important;
+                    opacity: 1 !important;
+                    text-shadow: none !important;
+                    box-shadow: none !important;
+                    background: transparent !important;
+                }
+
+                #receipt-print-root .overflow-x-auto {
+                    overflow: visible !important;
+                }
+
                 #receipt-print-root table {
-                    font-size: 10px;
+                    width: 100% !important;
+                    min-width: 0 !important;
+                    table-layout: fixed;
+                    font-size: 11px;
+                }
+
+                #receipt-print-root th,
+                #receipt-print-root td {
+                    padding: 2px 1px !important;
+                    border-color: #000 !important;
+                    word-break: break-word;
                 }
 
                 #receipt-print-root .receipt-compact {
-                    font-size: 11px;
-                    line-height: 1.25;
+                    font-size: 12px;
+                    line-height: 1.35;
                     padding: 8px !important;
                 }
 
