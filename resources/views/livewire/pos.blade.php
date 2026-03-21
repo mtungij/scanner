@@ -99,12 +99,12 @@
                 <div class="rounded-lg bg-gray-50 p-3 dark:bg-neutral-800">
                     <div class="mb-2 flex items-center justify-between">
                         <x-ui.text class="text-xs opacity-60">Amount to Pay</x-ui.text>
-                        <x-ui.text class="text-2xl font-bold text-green-600">${{ number_format($this->total, 2) }}</x-ui.text>
+                        <x-ui.text class="text-2xl font-bold text-green-600">{{ number_format($this->total, 2) }}</x-ui.text>
                     </div>
                 </div>
 
                 <x-ui.field>
-                    <x-ui.label>Payment Method</x-ui.label>
+                    <x-ui.label>Method</x-ui.label>
                     <x-ui.select wire:model="paymentMethod">
                         <x-ui.select.option value="Cash">Cash</x-ui.select.option>
                         <x-ui.select.option value="M-pesa">M-pesa</x-ui.select.option>
@@ -124,7 +124,7 @@
                 <div class="rounded-lg bg-blue-50 p-3 dark:bg-neutral-800">
                     <div class="flex items-center justify-between">
                         <x-ui.text class="font-medium">Change Due</x-ui.text>
-                        <x-ui.text class="text-2xl font-bold text-blue-600">${{ number_format($this->change, 2) }}</x-ui.text>
+                        <x-ui.text class="text-2xl font-bold text-blue-600">{{ number_format($this->change, 2) }}</x-ui.text>
                     </div>
                 </div>
 
