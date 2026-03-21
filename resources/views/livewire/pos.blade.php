@@ -95,9 +95,12 @@
             <x-ui.separator class="my-4" />
 
             <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                    <x-ui.text class="font-medium">Total</x-ui.text>
-                    <x-ui.text class="font-semibold">${{ number_format($this->total, 2) }}</x-ui.text>
+                <!-- Amount Summary Section -->
+                <div class="rounded-lg bg-gray-50 p-3 dark:bg-neutral-800">
+                    <div class="mb-2 flex items-center justify-between">
+                        <x-ui.text class="text-xs opacity-60">Amount to Pay</x-ui.text>
+                        <x-ui.text class="text-2xl font-bold text-green-600">${{ number_format($this->total, 2) }}</x-ui.text>
+                    </div>
                 </div>
 
                 <x-ui.field>
@@ -112,17 +115,20 @@
                 </x-ui.field>
 
                 <x-ui.field>
-                    <x-ui.label>Payment Amount</x-ui.label>
-                    <x-ui.input wire:model="paymentAmount" type="number" step="0.01" min="0" placeholder="0.00" />
+                    <x-ui.label>Amount Received (Payment)</x-ui.label>
+                    <x-ui.input wire:model.live="paymentAmount" type="number" step="0.01" min="0" placeholder="0.00" />
                     <x-ui.error name="paymentAmount" />
                 </x-ui.field>
 
-                <div class="flex items-center justify-between">
-                    <x-ui.text class="font-medium">Change</x-ui.text>
-                    <x-ui.text class="font-semibold">${{ number_format($this->change, 2) }}</x-ui.text>
+                <!-- Change Summary Section -->
+                <div class="rounded-lg bg-blue-50 p-3 dark:bg-neutral-800">
+                    <div class="flex items-center justify-between">
+                        <x-ui.text class="font-medium">Change Due</x-ui.text>
+                        <x-ui.text class="text-2xl font-bold text-blue-600">${{ number_format($this->change, 2) }}</x-ui.text>
+                    </div>
                 </div>
 
-                <x-ui.button class="w-full" wire:click="checkout">Checkout</x-ui.button>
+                <x-ui.button class="w-full" wire:click="checkout">Complete Checkout</x-ui.button>
             </div>
         </x-ui.card>
     </div>
