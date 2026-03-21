@@ -7,7 +7,7 @@
 
         <x-ui.modal id="create-user-modal" heading="Create User" width="md">
             <x-slot:trigger>
-                <x-ui.button icon="plus">New User</x-ui.button>
+                <x-ui.button icon="plus" class="w-full sm:w-auto">New User</x-ui.button>
             </x-slot:trigger>
 
             <div class="space-y-4">
@@ -53,7 +53,7 @@
 
     <x-ui.card size="xl">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="w-full min-w-[640px] text-left text-sm">
                 <thead>
                     <tr class="border-b border-gray-300 dark:border-neutral-700">
                         <th class="px-2 py-2">Name</th>
@@ -65,8 +65,8 @@
                 <tbody>
                     @forelse ($this->users as $user)
                         <tr class="border-b border-gray-200 last:border-b-0 dark:border-neutral-800" wire:key="user-{{ $user->id }}">
-                            <td class="px-2 py-2">{{ $user->name }}</td>
-                            <td class="px-2 py-2">{{ $user->email }}</td>
+                            <td class="px-2 py-2 max-w-[12rem] truncate" title="{{ $user->name }}">{{ $user->name }}</td>
+                            <td class="px-2 py-2 max-w-[14rem] truncate" title="{{ $user->email }}">{{ $user->email }}</td>
                             <td class="px-2 py-2">
                                 <x-ui.badge variant="outline" color="{{ $user->role === 'admin' ? 'blue' : 'green' }}">{{ ucfirst($user->role) }}</x-ui.badge>
                             </td>

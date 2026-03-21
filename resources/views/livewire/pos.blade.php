@@ -12,9 +12,9 @@
             <div x-data="posScanner($wire)" class="space-y-3">
                 <div id="barcode-reader" class="overflow-hidden rounded-lg border border-gray-300 dark:border-neutral-700"></div>
 
-                <div class="flex gap-2">
-                    <x-ui.button type="button" wire:ignore x-on:click="start()">Start Camera</x-ui.button>
-                    <x-ui.button type="button" variant="outline" wire:ignore x-on:click="stop()">Stop Camera</x-ui.button>
+                <div class="grid gap-2 sm:flex">
+                    <x-ui.button type="button" wire:ignore x-on:click="start()" class="w-full sm:w-auto">Start Camera</x-ui.button>
+                    <x-ui.button type="button" variant="outline" wire:ignore x-on:click="stop()" class="w-full sm:w-auto">Stop Camera</x-ui.button>
                 </div>
 
                 <div class="flex items-center justify-between rounded-lg border border-gray-300 px-3 py-2 dark:border-neutral-700">
@@ -34,7 +34,7 @@
 
             <x-ui.field>
                 <x-ui.label>Search by Product Name</x-ui.label>
-                <div class="flex gap-2">
+                <div class="flex flex-col gap-2 sm:flex-row">
                     <x-ui.select
                         placeholder="Find a product..."
                         icon="magnifying-glass"
@@ -49,7 +49,7 @@
                             <x-ui.select.option value="" disabled>No products available</x-ui.select.option>
                         @endforelse
                     </x-ui.select>
-                    <x-ui.button type="button" wire:click="addProductBySearch">Add</x-ui.button>
+                    <x-ui.button type="button" wire:click="addProductBySearch" class="w-full sm:w-auto">Add</x-ui.button>
                 </div>
             </x-ui.field>
 
@@ -60,7 +60,7 @@
                     x-on:focus-pos-barcode-input.window="$nextTick(() => $refs.barcodeInput?.focus())"
                     class="space-y-2"
                 >
-                    <div class="flex gap-2">
+                    <div class="flex flex-col gap-2 sm:flex-row">
                         <x-ui.input
                             x-ref="barcodeInput"
                             wire:model.live.debounce.0ms="barcodeInput"
@@ -68,7 +68,7 @@
                             placeholder="Enter barcode"
                             autocomplete="off"
                         />
-                        <x-ui.button type="button" wire:click="addProductByBarcode">Add</x-ui.button>
+                        <x-ui.button type="button" wire:click="addProductByBarcode" class="w-full sm:w-auto">Add</x-ui.button>
                     </div>
 
                     @php
@@ -99,13 +99,13 @@
 
             <div class="space-y-2">
                 @forelse ($cart as $item)
-                    <div class="flex items-center justify-between rounded-lg border border-gray-300 p-3 dark:border-neutral-700" wire:key="cart-item-{{ $item['product_id'] }}">
+                    <div class="flex flex-col gap-3 rounded-lg border border-gray-300 p-3 dark:border-neutral-700 sm:flex-row sm:items-center sm:justify-between" wire:key="cart-item-{{ $item['product_id'] }}">
                         <div>
                             <x-ui.text class="font-medium">{{ $item['name'] }}</x-ui.text>
                             <x-ui.text class="text-xs opacity-60">{{ $item['barcode'] }} · Sell: ${{ number_format((float) $item['price'], 2) }}</x-ui.text>
                         </div>
 
-                        <div class="flex items-center gap-2">
+                        <div class="flex flex-wrap items-center gap-2 sm:justify-end">
                             <x-ui.button size="xs" variant="outline" wire:click="decreaseQuantity({{ $item['product_id'] }})">-</x-ui.button>
                             <span class="w-6 text-center text-sm">{{ $item['quantity'] }}</span>
                             <x-ui.button size="xs" variant="outline" wire:click="increaseQuantity({{ $item['product_id'] }})">+</x-ui.button>

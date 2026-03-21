@@ -16,7 +16,7 @@
         />
 
         <div class="mt-4 overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="w-full min-w-[760px] text-left text-sm">
                 <thead>
                     <tr class="border-b border-gray-300 dark:border-neutral-700">
                         <th class="px-2 py-2">Sale #</th>

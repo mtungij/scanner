@@ -20,14 +20,14 @@
                 <x-ui.field>
                     <x-ui.label>Barcode</x-ui.label>
                     <div x-data="productBarcodeScanner($wire)" class="space-y-2">
-                        <div class="flex gap-2">
+                        <div class="flex flex-col gap-2 sm:flex-row">
                             <x-ui.input wire:model="barcode" placeholder="e.g. 123456789012" />
-                            <x-ui.button type="button" variant="outline" x-on:click="start()">Scan</x-ui.button>
-                            <x-ui.button type="button" variant="outline" x-on:click="stop()">Stop</x-ui.button>
+                            <x-ui.button type="button" variant="outline" x-on:click="start()" class="w-full sm:w-auto">Scan</x-ui.button>
+                            <x-ui.button type="button" variant="outline" x-on:click="stop()" class="w-full sm:w-auto">Stop</x-ui.button>
                         </div>
                         <div id="product-barcode-reader" class="overflow-hidden rounded-lg border border-gray-300 dark:border-neutral-700"></div>
                         <x-ui.text class="text-xs opacity-60" x-text="statusText"></x-ui.text>
-                        <x-ui.button type="button" variant="outline" wire:click="generateBarcode">Generate</x-ui.button>
+                        <x-ui.button type="button" variant="outline" wire:click="generateBarcode" class="w-full sm:w-auto">Generate</x-ui.button>
                     </div>
                     <x-ui.text class="text-xs opacity-60">Scan existing barcode or leave empty and click Save to auto-generate.</x-ui.text>
                     <x-ui.error name="barcode" />
@@ -90,7 +90,7 @@
         <x-ui.input wire:model.live.debounce.300ms="search" type="search" placeholder="Search by name or barcode" icon="magnifying-glass" />
 
         <div class="mt-4 overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="w-full min-w-[760px] text-left text-sm">
                 <thead>
                     <tr class="border-b border-gray-300 dark:border-neutral-700">
                         <th class="px-2 py-2">Name</th>
@@ -105,14 +105,14 @@
                 <tbody>
                     @forelse ($this->products as $product)
                         <tr class="border-b border-gray-200 last:border-b-0 dark:border-neutral-800" wire:key="product-{{ $product->id }}">
-                            <td class="px-2 py-2">{{ $product->name }}</td>
-                            <td class="px-2 py-2 font-mono text-xs">{{ $product->barcode }}</td>
+                            <td class="px-2 py-2 max-w-[14rem] truncate" title="{{ $product->name }}">{{ $product->name }}</td>
+                            <td class="px-2 py-2 font-mono text-xs max-w-[10rem] truncate" title="{{ $product->barcode }}">{{ $product->barcode }}</td>
                                <td class="px-2 py-2"><x-ui.badge>{{ $product->category ?? 'N/A' }}</x-ui.badge></td>
                             <td class="px-2 py-2 text-right">${{ number_format((float) $product->price, 2) }}</td>
                                <td class="px-2 py-2">{{ $product->unit ?? 'piece' }}</td>
                             <td class="px-2 py-2 text-right">{{ $product->stock_quantity }}</td>
                             <td class="px-2 py-2">
-                                <div class="flex justify-end gap-2">
+                                <div class="flex flex-wrap justify-end gap-2">
                                     <x-ui.button
                                         size="xs"
                                         variant="soft"
